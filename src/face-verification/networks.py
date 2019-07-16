@@ -10,9 +10,8 @@ class FaceEmbedder(nn.Module):
     in_chnl = config.in_chnl
     out_chnl = config.out_chnl
     hidden_size = config.hidden_size
-    kernel_size = config.kernel_size
     bias = config.bias
-    output_dimension = config.output_dimension
+    embedding_dimension = config.embedding_dimension
 
     self.conv_net = nn.Sequential(
       # Input: in_chnl * 3 * 218 * 178
@@ -39,7 +38,7 @@ class FaceEmbedder(nn.Module):
       nn.ReLU(),
       nn.Linear(hidden_size, hidden_size),
       nn.ReLU(),
-      nn.Linear(hidden_size, output_dimension)
+      nn.Linear(hidden_size, embedding_dimension)
     )
 
     def forward(self, x):
