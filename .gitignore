@@ -108,3 +108,6 @@ data/
 
 # Editor
 .vscode/
+
+# Config
+config.py

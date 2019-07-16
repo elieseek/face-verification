@@ -2,6 +2,6 @@
 Lets get this party started
 
 ## To-do
-- [ ] Create batch samplers
+- [x] Create batch samplers
 - [ ] Create loss functions
 - [ ] Create networks
