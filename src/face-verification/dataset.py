@@ -13,6 +13,7 @@ from torchvision import transforms
 
 # Configs
 from config import config
+import utils
 
 class CelebADataset(Dataset):
   """
@@ -25,7 +26,7 @@ class CelebADataset(Dataset):
     train/test_classes: number of labels to take for GE2E loss
   """
   def __init__(self):
-    self.transform = config.transform
+    self.transform = utils.transform_fn
     self.in_chnl = config.in_chnl
     if config.training == True:
       self.path = config.train_dir
@@ -35,7 +36,7 @@ class CelebADataset(Dataset):
       self.n_samples = config.test_samples
     
     self.labels = os.listdir(self.path)
-
+    self.dim = config.img_dim
   def __len__(self):
     return len(self.labels)
 
@@ -46,8 +47,8 @@ class CelebADataset(Dataset):
     shuffle(images)
     images = [path.join(label_folder, x) for x in images]
     images = images[:self.n_samples]
-    image_arrays = [self.transform(cv2.imread(img)) for img in images]
-    return np.array(image_arrays).reshape(-1, self.in_chnl, 218, 178)
+    image_arrays = np.array([self.transform(cv2.imread(img)) for img in images])
+    return torch.from_numpy(image_arrays).view(-1, self.in_chnl, self.dim, self.dim).float()
 
 def restucture_celeba(image_dir, label_file, eval_file, rm_small_classes=False):
   """
@@ -102,7 +103,9 @@ def remove_small_classes(image_dir):
 
 if __name__ == '__main__':
   dataset = CelebADataset()
+  loader = DataLoader(dataset, batch_size=config.test_classes)
+  loader = iter(loader)
   import time
   start = time.time()
-  [dataset[i] for i in range(64)]
+  loader.__next__()
   print("{:0.2f} seconds".format(time.time()-start))
