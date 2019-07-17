@@ -66,17 +66,30 @@ class GE2ELoss(nn.Module):
   def forward(self, embeddings):
     torch.clamp(self.w, 1e-6) # sets minimum on w
     centroids = utils.compute_centroids(embeddings)
-    cos_sim = utils.get_cossim(embeddings, centroids)
+    cos_sim = utils.get_cos_sim(embeddings, centroids)
     similarity_mat = self.w*cos_sim.to(device) + self.b
-    return calc_loss(similarity_mat)
+    return utils.calc_loss(similarity_mat)
 
+# Testing
 if __name__ == '__main__':
   import time
+  import utils
+  from torch.utils.data import DataLoader
   device = torch.device(config.device)
   data = dataset.CelebADataset()
-  image = data[0].to(device)
-  net = FaceEmbedder().to(device)
-  start = time.time()
-  net.forward(image)
-  print("{:0.2f} seconds".format(time.time()-start))
+  loader = DataLoader(data, batch_size=config.train_classes)
+  for image_batch in loader:
+    start = time.time()
+    image_batch = image_batch.to(device)
+    image_batch = torch.reshape(image_batch, (10*64, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
+    net = FaceEmbedder().to(device)
+    embeds = net.forward(image_batch)
+    print(embeds.shape)
+    embeds2 = embeds.view(64,10,256)
+    centroids = utils.compute_centroids(embeds2).view(64, 256)
+    print("centroids: {}".format(centroids.shape))
+    print("similarity: {}".format(utils.get_cos_sim_matrix(embeds2, centroids).shape))
+    print(utils.get_cos_sim_matrix(embeds2, centroids))
+    print("{:0.2f} seconds".format(time.time()-start))
+    break
   

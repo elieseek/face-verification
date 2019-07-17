@@ -24,6 +24,7 @@ class CelebADataset(Dataset):
     train/test_dir: path to dataset folder
     train/test_samples: number of samples taken from each label
     train/test_classes: number of labels to take for GE2E loss
+    image_dim: dimension to resize images into
   """
   def __init__(self):
     self.transform = utils.transform_fn
