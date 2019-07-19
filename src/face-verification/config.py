@@ -37,5 +37,6 @@ class Config:
     self.embedding_dimension = 256
 
     self.device = 'cuda'
+    self.n_gpu = 1
 
 config = Config()

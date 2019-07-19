@@ -1,6 +1,7 @@
 import os
 
 import torch
+import torch.nn as nn
 from torch.utils.data import DataLoader
 
 # locals
@@ -11,14 +12,21 @@ import utils
 
 def train():
   device = torch.device(cfg.device)
+  n_samples = cfg.train_samples
+  batch_size = cfg.train_classes
+  embedder_net = ConvEmbedder().to(device, non_blocking=True)
+  ge2e_net = GE2ELoss(device)
+
+  if cfg.n_gpu > 1:
+    embedder_net = nn.DataParallel(embedder_net)
+    ge2e_net = nn.DataParallel(ge2e_net)
+    batch_size *= cfg.n_gpu # compensates batch size geting distributed over gpus
 
   dataset = CelebADataset()
-  data_loader = DataLoader(dataset, batch_size=cfg.train_classes, shuffle=True, 
+  data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, 
                             num_workers=cfg.num_workers, drop_last=True,
                             pin_memory=True)
   
-  embedder_net = ConvEmbedder().to(device, non_blocking=True)
-  ge2e_net = GE2ELoss(device)
   
   if cfg.resume_training == True:
     embedder_net.load_state_dict(torch.load(cfg.resume_model_path))
@@ -28,6 +36,7 @@ def train():
     {'params': embedder_net.parameters()},
     {'params': ge2e_net.parameters()}
   ], lr=cfg.learning_rate)
+  
 
   loss_history = []
   no_improvement_count = 0
@@ -38,11 +47,11 @@ def train():
     total_loss = 0
     for i, image_batch in enumerate(data_loader):
       image_batch = image_batch.to(device, non_blocking=True)
-      image_batch = torch.reshape(image_batch, (cfg.train_samples*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
+      image_batch = torch.reshape(image_batch, (n_samples*batch_size, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
       optimiser.zero_grad()
 
       embeddings = embedder_net(image_batch)
-      embeddings = torch.reshape(image_batch, (cfg.train_classes, cfg.train_samples, -1))
+      embeddings = torch.reshape(image_batch, (batch_size, n_samples, -1))
 
       loss=ge2e_net(embeddings)
       loss.backward()
