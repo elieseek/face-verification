@@ -1,5 +1,5 @@
 # face-verification
-A face recognition model trained to create unique embeddings using Generalised end-to-end loss.
+A face recognition model trained to create unique embeddings using generalised end-to-end loss.
 
 ## Completed
 - Dataset restructuring
@@ -9,13 +9,13 @@ A face recognition model trained to create unique embeddings using Generalised e
 
 ## To-do
 - [ ] Calculate EER
-- [ ] train networks + create new
-- [ ] dockerise trained model
-- [ ] deploy demo
+- [ ] Train networks + create new
+- [ ] Dockerise trained model
+- [ ] Deploy demo
 
 # Training the model
-- Download and extract the cropped & aligned [CelebA dataset](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) along with identity annotations and partition text files.
-- Edit config.py to point to the images folder and text files
-- Edit config.py to point to an existing model and checkpoint folder
-- Once sure that your folders and config are set up correctly, run dataset.py to restructure the folders
-- Run train.py :)
+1. Download and extract the cropped & aligned [CelebA dataset](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) along with identity annotations and partition text files.
+2. Edit config.py to point to the images folder and text files
+3. Edit config.py to point to an existing model and checkpoint folder
+4. Once sure that your folders and config are set up correctly, run dataset.py to restructure the folders
+5. Run train.py :)
