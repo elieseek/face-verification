@@ -5,9 +5,9 @@ import dataset
 # Configs
 from config import config
 
-class FaceEmbedder(nn.Module):
+class ConvEmbedder(nn.Module):
   def __init__(self):
-    super(FaceEmbedder, self).__init__()
+    super(ConvEmbedder, self).__init__()
     in_chnl = config.in_chnl
     out_chnl = config.out_chnl
     hidden_size = config.hidden_size
@@ -15,7 +15,7 @@ class FaceEmbedder(nn.Module):
     embedding_dimension = config.embedding_dimension
     self.final_state_size = int(out_chnl*16*(config.img_dim/2**5)**2)
     self.conv_net = nn.Sequential(
-      # Input: in_chnl * 3 * 256 * 256
+      # Input: batch * in_chnl * 256 * 256
       nn.Conv2d(in_chnl, out_chnl, kernel_size=5, padding=2, bias=bias),
       nn.MaxPool2d(2, stride=2),
       nn.ReLU(),
@@ -51,6 +51,7 @@ class FaceEmbedder(nn.Module):
     output = self.conv_net(x)
     output = output.view(output.size()[0], -1)
     output = self.fc_net(output)
+    output = nn.functional.normalize(output, dim=0, p=2)
     return output
 
   def embed(self, x):
@@ -60,15 +61,16 @@ class GE2ELoss(nn.Module):
   def __init__(self, device):
     super(GE2ELoss, self).__init__()
     self.device = device
-    self.w = nn.Parameter(torch.Tenor(10.0).to(device), requires_grad=True)
+    self.w = nn.Parameter(torch.tensor(10.0).to(device), requires_grad=True)
     self.b = nn.Parameter(torch.tensor(-5.0).to(device), requires_grad=True)
+    self.loss_fn = utils.calc_softmax_loss
   
   def forward(self, embeddings):
     torch.clamp(self.w, 1e-6) # sets minimum on w
     centroids = utils.compute_centroids(embeddings)
-    cos_sim = utils.get_cos_sim(embeddings, centroids)
+    cos_sim = utils.get_cos_sim_matrix(embeddings, centroids)
     similarity_mat = self.w*cos_sim.to(device) + self.b
-    return utils.calc_loss(similarity_mat)
+    return self.loss_fn(similarity_mat)
 
 # Testing
 if __name__ == '__main__':
@@ -82,14 +84,12 @@ if __name__ == '__main__':
     start = time.time()
     image_batch = image_batch.to(device)
     image_batch = torch.reshape(image_batch, (10*64, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
-    net = FaceEmbedder().to(device)
+    net = ConvEmbedder().to(device)
+    loss = GE2ELoss(device)
     embeds = net.forward(image_batch)
     print(embeds.shape)
     embeds2 = embeds.view(64,10,256)
-    centroids = utils.compute_centroids(embeds2).view(64, 256)
-    print("centroids: {}".format(centroids.shape))
-    print("similarity: {}".format(utils.get_cos_sim_matrix(embeds2, centroids).shape))
-    print(utils.get_cos_sim_matrix(embeds2, centroids))
+    print(loss.forward(embeds.view(64,10,256)))
     print("{:0.2f} seconds".format(time.time()-start))
     break
   
