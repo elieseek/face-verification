@@ -5,10 +5,12 @@ import cv2
 class Config:
   def __init__(self):
     self.training = True
+    self.dataset_dir = ''
     self.train_dir = 'C:\cs_projects\\face-verification\data\img_align_celeba\\train'
     self.val_dir = 'C:\cs_projects\\face-verification\data\img_align_celeba\\val'
     self.test_dir = 'C:\cs_projects\\face-verification\data\img_align_celeba\\test'
     self.label_dir = 'C:\cs_projects\\face-verification\data\identity_CelebA.txt'
+
     self.model_dir = 'C:\cs_projects\\face-verification\model\\'
     self.checkpoint_dir = 'C:\cs_projects\\face-verification\model\checkpoints\\'
 
@@ -20,13 +22,13 @@ class Config:
     self.resume_training = False
     self.resume_model_path = 'C:\cs_projects\\face-verification\model\model.pt'
     self.resume_ge2e_path = 'C:\cs_projects\\face-verification\model\ge2e.pt'
-    self.checkpoint_rate = 5
     self.num_workers = 16
     self.learning_rate = 1e-3
     self.n_epochs = 100
     self.logging_rate = 0
     self.early_stopping = 10 # stop training if model doesn't improve, -1 for no early_stopping
-
+    self.checkpoint_rate = 5
+    
     self.img_dim = 64
 
     # ConvEmbedder Hparams

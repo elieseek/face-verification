@@ -96,17 +96,15 @@ def remove_small_classes(image_dir):
   count = 0
   for folder in classes:
     path_to_folder = path.join(image_dir, folder)
-    if len(os.listdir(path_to_folder)) < 10:
+    if len(os.listdir(path_to_folder)) < cfg.train_samples:
       rmtree(path_to_folder)
       count +=1
 
   return count
 
 if __name__ == '__main__':
-  dataset = CelebADataset()
-  loader = DataLoader(dataset, batch_size=cfg.test_classes)
-  loader = iter(loader)
-  import time
-  start = time.time()
-  loader.__next__()
-  print("{:0.2f} seconds".format(time.time()-start))
+ image_dir = cfg.dataset_dir
+ label_file = cfg.label_dir
+ eval_file = cfg.val_dir
+
+ restucture_celeba(image_dir, label_file, eval_file, True)
