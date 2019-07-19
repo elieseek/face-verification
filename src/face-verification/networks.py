@@ -2,18 +2,19 @@ import torch
 import torch.nn as nn
 import dataset
 
-# Configs
-from config import config
+# local
+from config import config as cfg
+import utils
 
 class ConvEmbedder(nn.Module):
   def __init__(self):
     super(ConvEmbedder, self).__init__()
-    in_chnl = config.in_chnl
-    out_chnl = config.out_chnl
-    hidden_size = config.hidden_size
-    bias = config.bias
-    embedding_dimension = config.embedding_dimension
-    self.final_state_size = int(out_chnl*16*(config.img_dim/2**5)**2)
+    in_chnl = cfg.in_chnl
+    out_chnl = cfg.out_chnl
+    hidden_size = cfg.hidden_size
+    bias = cfg.bias
+    embedding_dimension = cfg.embedding_dimension
+    self.final_state_size = int(out_chnl*16*(cfg.img_dim/2**5)**2)
     self.conv_net = nn.Sequential(
       # Input: batch * in_chnl * 256 * 256
       nn.Conv2d(in_chnl, out_chnl, kernel_size=5, padding=2, bias=bias),
@@ -69,27 +70,27 @@ class GE2ELoss(nn.Module):
     torch.clamp(self.w, 1e-6) # sets minimum on w
     centroids = utils.compute_centroids(embeddings)
     cos_sim = utils.get_cos_sim_matrix(embeddings, centroids)
-    similarity_mat = self.w*cos_sim.to(device) + self.b
+    similarity_mat = self.w*cos_sim.to(self.device) + self.b
     return self.loss_fn(similarity_mat)
 
 # Testing
 if __name__ == '__main__':
   import time
-  import utils
   from torch.utils.data import DataLoader
-  device = torch.device(config.device)
+  device = torch.device(cfg.device)
   data = dataset.CelebADataset()
-  loader = DataLoader(data, batch_size=config.train_classes)
+  loader = DataLoader(data, batch_size=cfg.train_classes)
   for image_batch in loader:
     start = time.time()
-    image_batch = image_batch.to(device)
-    image_batch = torch.reshape(image_batch, (10*64, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
-    net = ConvEmbedder().to(device)
+    image_batch = image_batch.to(device, non_blocking=True)
+    image_batch = torch.reshape(image_batch, (10*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
+    net = ConvEmbedder().to(device, non_blocking=True)
     loss = GE2ELoss(device)
-    embeds = net.forward(image_batch)
+    print("n_params: {}".format(sum([p.numel() for p in net.parameters() if p.requires_grad])))
+    embeds = net(image_batch)
     print(embeds.shape)
-    embeds2 = embeds.view(64,10,256)
-    print(loss.forward(embeds.view(64,10,256)))
+    embeds2 = embeds.view(cfg.train_classes,10,256)
+    print(loss.forward(embeds.view(cfg.train_classes,10,256)))
     print("{:0.2f} seconds".format(time.time()-start))
     break
   

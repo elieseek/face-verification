@@ -2,10 +2,10 @@ import cv2
 import torch
 from torch.functional import F
 
-from config import config
+from config import config as cfg
 
 def transform_fn(image):
-  dim = config.img_dim
+  dim = cfg.img_dim
   h, w, c = image.shape
   crop = int((h-w)/2)
   if crop > 0:

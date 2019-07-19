@@ -12,7 +12,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 # Configs
-from config import config
+from config import config as cfg
 import utils
 
 class CelebADataset(Dataset):
@@ -28,16 +28,16 @@ class CelebADataset(Dataset):
   """
   def __init__(self):
     self.transform = utils.transform_fn
-    self.in_chnl = config.in_chnl
-    if config.training == True:
-      self.path = config.train_dir
-      self.n_samples = config.train_samples
+    self.in_chnl = cfg.in_chnl
+    if cfg.training == True:
+      self.path = cfg.train_dir
+      self.n_samples = cfg.train_samples
     else:
-      self.path = config.test_dir
-      self.n_samples = config.test_samples
+      self.path = cfg.test_dir
+      self.n_samples = cfg.test_samples
     
     self.labels = os.listdir(self.path)
-    self.dim = config.img_dim
+    self.dim = cfg.img_dim
   def __len__(self):
     return len(self.labels)
 
@@ -63,11 +63,11 @@ def restucture_celeba(image_dir, label_file, eval_file, rm_small_classes=False):
       partition = part_dict[fname]
 
       if partition == '0':
-        fpath_new = config.train_dir
+        fpath_new = cfg.train_dir
       elif partition == '1':
-        fpath_new = config.val_dir
+        fpath_new = cfg.val_dir
       else:
-        fpath_new = config.test_dir
+        fpath_new = cfg.test_dir
 
       fpath_old = path.join(image_dir, fname)
       fpath_new = path.join(fpath_new, label)
@@ -77,7 +77,7 @@ def restucture_celeba(image_dir, label_file, eval_file, rm_small_classes=False):
       if not os.path.exists(fpath_new): os.rename(fpath_old, fpath_new)
   
   if rm_small_classes:
-    remove_small_classes(config.train_dir)
+    remove_small_classes(cfg.train_dir)
 
 def read_eval_file(eval_file):
   part_dict = {}
@@ -104,7 +104,7 @@ def remove_small_classes(image_dir):
 
 if __name__ == '__main__':
   dataset = CelebADataset()
-  loader = DataLoader(dataset, batch_size=config.test_classes)
+  loader = DataLoader(dataset, batch_size=cfg.test_classes)
   loader = iter(loader)
   import time
   start = time.time()
