@@ -1,4 +1,5 @@
 import os
+import pickle
 
 import torch
 import torch.nn as nn
@@ -54,6 +55,7 @@ def train():
       embeddings = torch.reshape(image_batch, (batch_size, n_samples, -1))
 
       loss=ge2e_net(embeddings)
+      loss = loss.sum() # required for multi-gpu where a tensor of losses is returned
       loss.backward()
       optimiser.step()
       total_loss += loss
@@ -79,6 +81,9 @@ def train():
       print("checkpoint saved!")
       torch.save(embedder_net.state_dict(), cfg.checkpoint_dir + 'model_chkpt_{}.pt'.format(epoch))
       torch.save(ge2e_net.state_dict(), cfg.checkpoint_dir + 'ge2e_chkpt_{}.pt'.format(epoch))
+
+  with open('loss_history.pkl', 'w') as f:
+    pickle.dump(loss_history, f)
 
   print("Final loss: {:.04f}, Final total loss: {:.04f}".format(loss, total_loss))
   torch.save(embedder_net.state_dict(), cfg.model_dir + 'model_epoch_{}.pt'.format(epoch))
