@@ -1,5 +1,5 @@
 # face-verification
-A face recognition model trained to create unique embeddings using Generalised end-to-end loss.
+A face recognition model trained to create unique embeddings using generalised end-to-end loss.
 
 ## Completed
 - Dataset restructuring
