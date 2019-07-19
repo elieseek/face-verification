@@ -9,9 +9,9 @@ A face recognition model trained to create unique embeddings using Generalised e
 
 ## To-do
 - [ ] Calculate EER
-- [ ] train networks + create new
-- [ ] dockerise trained model
-- [ ] deploy demo
+- [ ] Train networks + create new
+- [ ] Dockerise trained model
+- [ ] Deploy demo
 
 # Training the model
 - Download and extract the cropped & aligned [CelebA dataset](http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html) along with identity annotations and partition text files.
