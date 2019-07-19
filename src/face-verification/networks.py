@@ -52,7 +52,7 @@ class ConvEmbedder(nn.Module):
     output = self.conv_net(x)
     output = output.view(output.size()[0], -1)
     output = self.fc_net(output)
-    output = nn.functional.normalize(output, dim=0, p=2)
+    output = nn.functional.normalize(output, dim=-1, p=2)
     return output
 
   def embed(self, x):
@@ -75,22 +75,21 @@ class GE2ELoss(nn.Module):
 
 # Testing
 if __name__ == '__main__':
-  import time
-  from torch.utils.data import DataLoader
-  device = torch.device(cfg.device)
+  # import time
+  # from torch.utils.data import DataLoader
+  # device = torch.device(cfg.device)
   data = dataset.CelebADataset()
-  loader = DataLoader(data, batch_size=cfg.train_classes)
-  for image_batch in loader:
-    start = time.time()
-    image_batch = image_batch.to(device, non_blocking=True)
-    image_batch = torch.reshape(image_batch, (10*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
-    net = ConvEmbedder().to(device, non_blocking=True)
-    loss = GE2ELoss(device)
-    print("n_params: {}".format(sum([p.numel() for p in net.parameters() if p.requires_grad])))
-    embeds = net(image_batch)
-    print(embeds.shape)
-    embeds2 = embeds.view(cfg.train_classes,10,256)
-    print(loss.forward(embeds.view(cfg.train_classes,10,256)))
-    print("{:0.2f} seconds".format(time.time()-start))
-    break
-  
+  # loader = DataLoader(data, batch_size=cfg.train_classes)
+  # for image_batch in loader:
+  #   start = time.time()
+  #   image_batch = image_batch.to(device, non_blocking=True)
+  #   image_batch = torch.reshape(image_batch, (10*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
+  #   net = ConvEmbedder().to(device, non_blocking=True)
+  #   loss = GE2ELoss(device)
+  #   print("n_params: {}".format(sum([p.numel() for p in net.parameters() if p.requires_grad])))
+  #   embeds = net(image_batch)
+  #   print(embeds.shape)
+  #   embeds2 = embeds.view(cfg.train_classes,10,256)
+  #   print(loss.forward(embeds.view(cfg.train_classes,10,256)))
+  #   print("{:0.2f} seconds".format(time.time()-start))
+  #   break
