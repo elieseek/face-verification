@@ -60,8 +60,8 @@ def train():
       optimiser.step()
       total_loss += loss
       if cfg.logging_rate != 0 and (i + 1) % cfg.logging_rate == 0:
-        print("Epoch: {}, Batch: {}, Loss: {:.04f}, total loss: {:.04f}"
-              .format(epoch, i, loss, total_loss)
+        print("Epoch: {}, Batch: {}, Loss: {:.04f}, avg loss: {:.04f}"
+              .format(epoch, i, loss, total_loss/batch_size)
               )
 
     loss_history.append(total_loss)
@@ -76,7 +76,7 @@ def train():
       break
 
     
-    print("Epoch: {}, total loss: {:.04f}".format(epoch, total_loss))
+    print("Epoch: {}, avg loss: {:.04f}".format(epoch, total_loss/batch_size))
     if cfg.checkpoint_rate != 0 and (epoch + 1) % cfg.checkpoint_rate == 0:
       print("checkpoint saved!")
       torch.save(embedder_net.state_dict(), cfg.checkpoint_dir + 'model_chkpt_{}.pt'.format(epoch))
@@ -85,7 +85,7 @@ def train():
   with open('loss_history.pkl', 'w') as f:
     pickle.dump(loss_history, f)
 
-  print("Final loss: {:.04f}, Final total loss: {:.04f}".format(loss, total_loss))
+  print("Final loss: {:.04f}, Final avg loss: {:.04f}".format(loss, total_loss/batch_size))
   torch.save(embedder_net.state_dict(), cfg.model_dir + 'model_epoch_{}.pt'.format(epoch))
 
 if __name__ == "__main__":

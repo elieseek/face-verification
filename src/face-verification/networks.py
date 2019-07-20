@@ -14,19 +14,17 @@ class ConvEmbedder(nn.Module):
     hidden_size = cfg.hidden_size
     bias = cfg.bias
     embedding_dimension = cfg.embedding_dimension
-    self.final_state_size = int(out_chnl*16*(cfg.img_dim/2**5)**2)
+    self.final_state_size = int(out_chnl*16*(cfg.img_dim/2**3)**2)
     self.conv_net = nn.Sequential(
-      # Input: batch * in_chnl * 256 * 256
+      # Input: batch * in_chnl * 64 * 64
       nn.Conv2d(in_chnl, out_chnl, kernel_size=5, padding=2, bias=bias),
-      nn.MaxPool2d(2, stride=2),
       nn.ReLU(),
-      # State size: out_chnl * 128 * 128
+      # State size: out_chnl * 64 * 64
       nn.Conv2d(out_chnl, out_chnl*2, kernel_size=5, padding=2, bias=bias),
       nn.MaxPool2d(2, stride=2),
       nn.ReLU(),
-      # State size: (out_chnl*2) * 64 * 64
+      # State size: (out_chnl*2) * 32 * 32
       nn.Conv2d(out_chnl*2, out_chnl*4, kernel_size=3, padding=1, bias=bias),
-      nn.MaxPool2d(2, stride=2),
       nn.ReLU(),
       # State size: (out_chnl*4) * 32 * 32
       nn.Conv2d(out_chnl*4, out_chnl*8, kernel_size=3, padding=1,bias=bias),
@@ -75,21 +73,21 @@ class GE2ELoss(nn.Module):
 
 # Testing
 if __name__ == '__main__':
-  # import time
-  # from torch.utils.data import DataLoader
-  # device = torch.device(cfg.device)
+  import time
+  from torch.utils.data import DataLoader
+  device = torch.device(cfg.device)
   data = dataset.CelebADataset()
-  # loader = DataLoader(data, batch_size=cfg.train_classes)
-  # for image_batch in loader:
-  #   start = time.time()
-  #   image_batch = image_batch.to(device, non_blocking=True)
-  #   image_batch = torch.reshape(image_batch, (10*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
-  #   net = ConvEmbedder().to(device, non_blocking=True)
-  #   loss = GE2ELoss(device)
-  #   print("n_params: {}".format(sum([p.numel() for p in net.parameters() if p.requires_grad])))
-  #   embeds = net(image_batch)
-  #   print(embeds.shape)
-  #   embeds2 = embeds.view(cfg.train_classes,10,256)
-  #   print(loss.forward(embeds.view(cfg.train_classes,10,256)))
-  #   print("{:0.2f} seconds".format(time.time()-start))
-  #   break
+  loader = DataLoader(data, batch_size=cfg.train_classes)
+  for image_batch in loader:
+    start = time.time()
+    image_batch = image_batch.to(device, non_blocking=True)
+    image_batch = torch.reshape(image_batch, (10*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
+    net = ConvEmbedder().to(device, non_blocking=True)
+    loss = GE2ELoss(device)
+    print("n_params: {}".format(sum([p.numel() for p in net.parameters() if p.requires_grad])))
+    embeds = net(image_batch)
+    print(embeds.shape)
+    embeds2 = embeds.view(cfg.train_classes,10,256)
+    print(loss.forward(embeds.view(cfg.train_classes,10,256)))
+    print("{:0.2f} seconds".format(time.time()-start))
+    break

@@ -33,7 +33,7 @@ class Config:
 
     # ConvEmbedder Hparams
     self.in_chnl = 3
-    self.out_chnl = 64
+    self.out_chnl = 16
     self.bias = False
     self.hidden_size = 256
     self.embedding_dimension = 256
