@@ -10,6 +10,7 @@ class Config:
     self.val_dir = 'C:\cs_projects\\face-verification\data\img_align_celeba\\val'
     self.test_dir = 'C:\cs_projects\\face-verification\data\img_align_celeba\\test'
     self.label_dir = 'C:\cs_projects\\face-verification\data\identity_CelebA.txt'
+    self.partition_dir = 'C:\cs_projects\\face-verification\data\list_eval_partition.txt'
 
     self.model_dir = 'C:\cs_projects\\face-verification\model\\'
     self.checkpoint_dir = 'C:\cs_projects\\face-verification\model\checkpoints\\'

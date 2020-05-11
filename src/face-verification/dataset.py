@@ -105,6 +105,6 @@ def remove_small_classes(image_dir):
 if __name__ == '__main__':
  image_dir = cfg.dataset_dir
  label_file = cfg.label_dir
- eval_file = cfg.val_dir
+ eval_file = cfg.partition_dir
 
  restucture_celeba(image_dir, label_file, eval_file, True)
