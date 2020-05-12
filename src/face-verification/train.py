@@ -78,11 +78,12 @@ def train():
     
     print("Epoch: {}, avg loss: {:.04f}".format(epoch, total_loss/batch_size))
     if cfg.checkpoint_rate != 0 and (epoch + 1) % cfg.checkpoint_rate == 0:
-      print("checkpoint saved!")
+      if not os.path.exists(cfg.checkpoint_dir): os.makedirs(cfg.checkpoint_dir)
       torch.save(embedder_net.state_dict(), cfg.checkpoint_dir + 'model_chkpt_{}.pt'.format(epoch))
       torch.save(ge2e_net.state_dict(), cfg.checkpoint_dir + 'ge2e_chkpt_{}.pt'.format(epoch))
+      print("checkpoint saved!")
 
-  with open('loss_history.pkl', 'w') as f:
+  with open('loss_history.pkl', 'wb') as f:
     pickle.dump(loss_history, f)
 
   print("Final loss: {:.04f}, Final avg loss: {:.04f}".format(loss, total_loss/batch_size))
