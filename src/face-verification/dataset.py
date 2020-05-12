@@ -107,4 +107,4 @@ if __name__ == '__main__':
  label_file = cfg.label_dir
  eval_file = cfg.partition_dir
 
- restucture_celeba(image_dir, label_file, eval_file, True)
+ if not os.path.exists(cfg.train_dir): restucture_celeba(image_dir, label_file, eval_file, True)
