@@ -87,7 +87,8 @@ def train():
     pickle.dump(loss_history, f)
 
   print("Final loss: {:.04f}, Final avg loss: {:.04f}".format(loss, total_loss/batch_size))
-  torch.save(embedder_net.state_dict(), cfg.model_dir + 'model_epoch_{}.pt'.format(epoch))
+  torch.save(embedder_net.state_dict(), cfg.model_dir + 'embedder_epoch_{}.pt'.format(epoch))
+  torch.save(ge2e_net.state_dict(), cfg.model_dir + 'ge2e_epoch_{}.pt'.format(epoch))
 
 if __name__ == "__main__":
   train()
