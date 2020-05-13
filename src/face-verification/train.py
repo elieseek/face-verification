@@ -28,7 +28,6 @@ def train():
                             num_workers=cfg.num_workers, drop_last=True,
                             pin_memory=True)
   
-  
   if cfg.resume_training == True:
     embedder_net.load_state_dict(torch.load(cfg.resume_model_path))
     ge2e_net.load_state_dict(torch.load(cfg.resume_ge2e_path))
@@ -38,7 +37,6 @@ def train():
     {'params': ge2e_net.parameters()}
   ], lr=cfg.learning_rate)
   
-
   loss_history = []
   no_improvement_count = 0
   embedder_net.train()
@@ -47,7 +45,7 @@ def train():
     print("Epoch {}/{}".format(epoch, cfg.n_epochs))
     total_loss = 0
     for i, image_batch in enumerate(data_loader):
-      image_batch = image_batch.to(device, non_blocking=True)
+      image_batch = image_batch.float().to(device, non_blocking=True)
       image_batch = torch.reshape(image_batch, (n_samples*batch_size, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
       optimiser.zero_grad()
 
@@ -74,7 +72,6 @@ def train():
     if no_improvement_count == cfg.early_stopping:
       print("Loss didn't improve for {} epochs, early stopping at epoch {}.".format(cfg.early_stopping, epoch))
       break
-
     
     print("Epoch: {}, avg loss: {:.04f}".format(epoch, total_loss/batch_size))
     if cfg.checkpoint_rate != 0 and (epoch + 1) % cfg.checkpoint_rate == 0:
