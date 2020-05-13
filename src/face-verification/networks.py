@@ -20,12 +20,12 @@ class ConvEmbedder(nn.Module):
       nn.Conv2d(in_chnl, out_chnl, kernel_size=5, padding=2, bias=bias),
       nn.ReLU(),
       # State size: out_chnl * 64 * 64
-      nn.Conv2d(out_chnl, out_chnl*2, kernel_size=5, padding=2, bias=bias),
+      nn.Conv2d(out_chnl, out_chnl*4, kernel_size=5, padding=2, bias=bias),
       nn.MaxPool2d(2, stride=2),
       nn.ReLU(),
-      # State size: (out_chnl*2) * 32 * 32
-      nn.Conv2d(out_chnl*2, out_chnl*4, kernel_size=3, padding=1, bias=bias),
-      nn.ReLU(),
+      # # State size: (out_chnl*2) * 32 * 32
+      # nn.Conv2d(out_chnl*2, out_chnl*4, kernel_size=3, padding=1, bias=bias),
+      # nn.ReLU(),
       # State size: (out_chnl*4) * 32 * 32
       nn.Conv2d(out_chnl*4, out_chnl*8, kernel_size=3, padding=1,bias=bias),
       nn.MaxPool2d(2, stride=2),
@@ -41,8 +41,8 @@ class ConvEmbedder(nn.Module):
       # Input is flattened final convnet state size
       nn.Linear(self.final_state_size, hidden_size),
       nn.ReLU(),
-      nn.Linear(hidden_size, hidden_size),
-      nn.ReLU(),
+      # nn.Linear(hidden_size, hidden_size),
+      # nn.ReLU(),
       nn.Linear(hidden_size, embedding_dimension)
     )
 
@@ -65,7 +65,7 @@ class GE2ELoss(nn.Module):
     self.loss_fn = utils.calc_softmax_loss
   
   def forward(self, embeddings):
-    torch.clamp(self.w, 1e-6) # sets minimum on w
+    torch.clamp(self.w, min=1e-6) # sets minimum on w
     centroids = utils.compute_centroids(embeddings)
     cos_sim = utils.get_cos_sim_matrix(embeddings, centroids)
     similarity_mat = self.w*cos_sim.to(self.device) + self.b
@@ -73,21 +73,46 @@ class GE2ELoss(nn.Module):
 
 # Testing
 if __name__ == '__main__':
+  import matplotlib.pyplot as plt
+  import cv2
   import time
+  import numpy as np
   from torch.utils.data import DataLoader
   device = torch.device(cfg.device)
   data = dataset.CelebADataset()
-  loader = DataLoader(data, batch_size=cfg.train_classes)
+  loader = DataLoader(data, batch_size=cfg.train_classes, shuffle=True)
+  net = ConvEmbedder().to(device, non_blocking=True)
+  ge2e = GE2ELoss(device)
+  net.load_state_dict(torch.load(cfg.resume_model_path))
+  ge2e.load_state_dict(torch.load(cfg.resume_ge2e_path))
+  prev_emb = torch.Tensor()
+  i = 1
   for image_batch in loader:
+    print(image_batch[0].shape)
+    test = np.moveaxis(image_batch.numpy()[0].astype(float).astype(np.uint8), 1,-1)
+    print(test.shape)
+    cv2.imshow('name',test[0])
+    cv2.waitKey(0)
     start = time.time()
-    image_batch = image_batch.to(device, non_blocking=True)
-    image_batch = torch.reshape(image_batch, (10*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
-    net = ConvEmbedder().to(device, non_blocking=True)
-    loss = GE2ELoss(device)
+    print(image_batch.shape)
+    image_batch = image_batch.float().to(device, non_blocking=True)
+    image_batch = torch.reshape(image_batch, (cfg.train_samples*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
+    print(image_batch.shape)
     print("n_params: {}".format(sum([p.numel() for p in net.parameters() if p.requires_grad])))
     embeds = net(image_batch)
-    print(embeds.shape)
-    embeds2 = embeds.view(cfg.train_classes,10,256)
-    print(loss.forward(embeds.view(cfg.train_classes,10,256)))
+    embeds = torch.reshape(embeds, (cfg.train_classes, cfg.train_samples, -1))
+    loss = ge2e(embeds)  
+    loss.backward()
+    if i != 1:
+      mix = torch.stack([prev_emb,embeds[0]])
+      print(mix.shape)
+      c = utils.compute_centroids(mix)
+      matrix = utils.get_cos_sim_matrix(mix, c)
+      print(matrix)
+      print(loss)
+    i += 1
+    prev_emb = embeds[0]
+    # print(embeds[:2])
+    embeds2 = embeds.view(cfg.train_classes,cfg.train_samples,cfg.embedding_dimension)
+    # print(ge2e.forward(embeds2))
     print("{:0.2f} seconds".format(time.time()-start))
-    break
