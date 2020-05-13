@@ -49,7 +49,8 @@ class CelebADataset(Dataset):
     images = [path.join(label_folder, x) for x in images]
     images = images[:self.n_samples]
     image_arrays = np.array([self.transform(cv2.imread(img)) for img in images])
-    return torch.from_numpy(image_arrays).view(-1, self.in_chnl, self.dim, self.dim).float()
+    image_arrays = np.moveaxis(image_arrays, -1, 1)
+    return torch.from_numpy(image_arrays)
 
 def restucture_celeba(image_dir, label_file, eval_file, rm_small_classes=False):
   """
