@@ -8,6 +8,7 @@ A face recognition model trained to create unique embeddings using generalised e
 - Training loop
 
 ## To-do
+- [ ] Normalize input
 - [ ] Calculate EER
 - [ ] Train networks + create new
 - [ ] Dockerise trained model
