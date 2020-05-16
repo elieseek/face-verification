@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 # locals
 from config import config as cfg
 from dataset import CelebADataset, calc_pixel_stats
-from networks import ConvEmbedder, GE2ELoss
+from networks import ConvEmbedder, GE2ELoss, CombinedModel
 import utils
 
 def train(mean = None, sd = None):
@@ -40,7 +40,7 @@ def train(mean = None, sd = None):
   
   loss_history = []
   no_improvement_count = 0
-  embedder_net.train()
+  combined_model = CombinedModel(embedder_net, ge2e_net)
   print("GPU available: {}, Current device: {}".format(torch.cuda.is_available(), torch.cuda.get_device_name()))
   for epoch in range(cfg.n_epochs):
     print("Epoch {}/{}".format(epoch, cfg.n_epochs))
@@ -50,10 +50,11 @@ def train(mean = None, sd = None):
       image_batch = torch.reshape(image_batch, (n_samples*batch_size, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
       optimiser.zero_grad()
 
-      embeddings = embedder_net(image_batch)
-      embeddings = torch.reshape(image_batch, (batch_size, n_samples, -1))
+      # embeddings = embedder_net(image_batch)
+      # embeddings = torch.reshape(image_batch, (batch_size, n_samples, -1))
 
-      loss=ge2e_net(embeddings)
+      # loss=ge2e_net(embeddings)
+      loss = combined_model(image_batch)
       loss = loss.sum() # required for multi-gpu where a tensor of losses is returned
       loss.backward()
       optimiser.step()

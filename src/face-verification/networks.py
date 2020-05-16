@@ -14,26 +14,26 @@ class ConvEmbedder(nn.Module):
     hidden_size = cfg.hidden_size
     bias = cfg.bias
     embedding_dimension = cfg.embedding_dimension
-    self.final_state_size = int(out_chnl*16*(cfg.img_dim/2**3)**2)
+    self.final_state_size = int(out_chnl*4*(cfg.img_dim/2**2)**2)
     self.conv_net = nn.Sequential(
       # Input: batch * in_chnl * 64 * 64
       nn.Conv2d(in_chnl, out_chnl, kernel_size=5, padding=2, bias=bias),
-      nn.ReLU(),
+      nn.LeakyReLU(),
       # State size: out_chnl * 64 * 64
-      nn.Conv2d(out_chnl, out_chnl*4, kernel_size=5, padding=2, bias=bias),
+      nn.Conv2d(out_chnl, out_chnl*2, kernel_size=5, padding=2, bias=bias),
       nn.MaxPool2d(2, stride=2),
-      nn.ReLU(),
-      # # State size: (out_chnl*2) * 32 * 32
+      nn.LeakyReLU(),
+      # State size: (out_chnl*2) * 32 * 32
       # nn.Conv2d(out_chnl*2, out_chnl*4, kernel_size=3, padding=1, bias=bias),
-      # nn.ReLU(),
+      # nn.LeakyReLU(),
       # State size: (out_chnl*4) * 32 * 32
-      nn.Conv2d(out_chnl*4, out_chnl*8, kernel_size=3, padding=1,bias=bias),
+      nn.Conv2d(out_chnl*2, out_chnl*4, kernel_size=3, padding=1,bias=bias),
       nn.MaxPool2d(2, stride=2),
-      nn.ReLU(),
+      nn.LeakyReLU(),
       # State size: (out_chnl*8) * 16 * 16
-      nn.Conv2d(out_chnl*8, out_chnl*16, kernel_size=3, padding=1, bias=bias),
-      nn.MaxPool2d(2, stride=2),
-      nn.ReLU(),
+      # nn.Conv2d(out_chnl*8, out_chnl*16, kernel_size=3, padding=1, bias=bias),
+      # nn.MaxPool2d(2, stride=2),
+      # nn.LeakyReLU(),
       # State size: (out_chnl*16) * 8 * 8
     )
 
@@ -41,8 +41,8 @@ class ConvEmbedder(nn.Module):
       # Input is flattened final convnet state size
       nn.Linear(self.final_state_size, hidden_size),
       nn.ReLU(),
-      # nn.Linear(hidden_size, hidden_size),
-      # nn.ReLU(),
+      nn.Linear(hidden_size, hidden_size),
+      nn.ReLU(),
       nn.Linear(hidden_size, embedding_dimension)
     )
 
@@ -71,6 +71,20 @@ class GE2ELoss(nn.Module):
     similarity_mat = self.w*cos_sim.to(self.device) + self.b
     return self.loss_fn(similarity_mat)
 
+class CombinedModel(nn.Module):
+  def __init__(self, model_a, model_b):
+    super(CombinedModel, self).__init__()
+    self.model_a = model_a
+    self.model_b = model_b
+    self.batch_size = cfg.train_classes
+    self.n_samples = cfg.train_samples
+  
+  def forward(self, x):
+    output = self.model_a(x)
+    output = torch.reshape(output, (self.batch_size, self.n_samples, -1))
+    output = self.model_b(output)
+    return output
+
 # Testing
 if __name__ == '__main__':
   import matplotlib.pyplot as plt
@@ -88,7 +102,7 @@ if __name__ == '__main__':
   prev_emb = torch.Tensor()
   i = 1
   for image_batch in loader:
-    print(image_batch[0].shape)
+    print(image_batch.shape)
     test = np.moveaxis(image_batch.numpy()[0].astype(float).astype(np.uint8), 1,-1)
     print(test.shape)
     cv2.imshow('name',test[0])
