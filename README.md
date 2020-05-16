@@ -6,9 +6,9 @@ A face recognition model trained to create unique embeddings using generalised e
 - CNN embedding model
 - [GE2E loss](https://arxiv.org/abs/1710.10467) for embeddings
 - Training loop
+- Z normalizing input
 
 ## To-do
-- [ ] Normalize input
 - [ ] Calculate EER
 - [ ] Train networks + create new
 - [ ] Dockerise trained model
