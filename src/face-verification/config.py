@@ -4,7 +4,6 @@ import cv2
 
 class Config:
   def __init__(self):
-    self.training = True
     self.dataset_dir = 'C:\cs_projects\\face-verification\data\img_align_celeba'
     self.train_dir = 'C:\cs_projects\\face-verification\data\img_align_celeba\\train'
     self.val_dir = 'C:\cs_projects\\face-verification\data\img_align_celeba\\val'
@@ -15,7 +14,7 @@ class Config:
     self.model_dir = 'C:\cs_projects\\face-verification\model\\'
     self.checkpoint_dir = 'C:\cs_projects\\face-verification\model\checkpoints\\'
 
-    self.train_samples = 3
+    self.train_samples = 10
     self.test_samples = 10
     self.train_classes = 64
     self.test_classes = 64
@@ -27,17 +26,17 @@ class Config:
     self.learning_rate = 0.1
     self.n_epochs = 100
     self.logging_rate = 0
-    self.early_stopping = 5 # stop training if model doesn't improve, -1 for no early_stopping
+    self.early_stopping = -1 # stop training if model doesn't improve, -1 for no early_stopping
     self.checkpoint_rate = 0
     
     self.img_dim = 64
 
     # ConvEmbedder Hparams
     self.in_chnl = 3
-    self.out_chnl = 16
+    self.out_chnl = 8
     self.bias = True
-    self.hidden_size = 64
-    self.embedding_dimension = 256
+    self.hidden_size = 128
+    self.embedding_dimension = 64
 
     self.device = 'cuda'
     self.n_gpu = 1

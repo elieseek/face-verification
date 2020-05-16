@@ -1,17 +1,27 @@
 import cv2
+import numpy as np
 import torch
 from torch.functional import F
 
 from config import config as cfg
 
-def transform_fn(image):
+def transform_fn(image, 
+                  mean=np.zeros((cfg.img_dim, cfg.img_dim, cfg.in_chnl)), 
+                  sd=np.ones((cfg.img_dim, cfg.img_dim, cfg.in_chnl))
+                ):
+  """
+  Crop and z-score normalise images
+  default mean and sd make no changes to image
+  """
   dim = cfg.img_dim
   h, w, c = image.shape
   crop = int((h-w)/2)
   if crop > 0:
-    return cv2.resize(image[crop:-crop, :], (dim, dim))
+     image = cv2.resize(image[crop:-crop, :], (dim, dim))
   else:
-    return cv2.resize(image[:, crop:-crop], (dim, dim))
+    image = cv2.resize(image[:, crop:-crop], (dim, dim))
+
+  return np.true_divide(image-mean,sd)
 
 def compute_centroids(embeddings):
   """

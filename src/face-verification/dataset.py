@@ -20,24 +20,30 @@ class CelebADataset(Dataset):
   CelebA Dataset
   config.py options:
     transform: a transformation function for each image
-    training: bool indicating whether to train or test
     train/test_dir: path to dataset folder
     train/test_samples: number of samples taken from each label
     train/test_classes: number of labels to take for GE2E loss
     image_dim: dimension to resize images into
   """
-  def __init__(self):
+  def __init__(self, 
+                training=True, 
+                mean=np.zeros((cfg.img_dim, cfg.img_dim, cfg.in_chnl)), 
+                sd=np.ones((cfg.img_dim, cfg.img_dim, cfg.in_chnl))
+              ):
+    self.mean = mean
+    self.sd = sd
     self.transform = utils.transform_fn
     self.in_chnl = cfg.in_chnl
-    if cfg.training == True:
+    self.dim = cfg.img_dim
+
+    if training == True:
       self.path = cfg.train_dir
       self.n_samples = cfg.train_samples
     else:
       self.path = cfg.test_dir
       self.n_samples = cfg.test_samples
-    
     self.labels = os.listdir(self.path)
-    self.dim = cfg.img_dim
+
   def __len__(self):
     return len(self.labels)
 
@@ -48,7 +54,7 @@ class CelebADataset(Dataset):
     shuffle(images)
     images = [path.join(label_folder, x) for x in images]
     images = images[:self.n_samples]
-    image_arrays = np.array([self.transform(cv2.imread(img)) for img in images])
+    image_arrays = np.array([self.transform(cv2.imread(img), self.mean, self.sd) for img in images])
     image_arrays = np.moveaxis(image_arrays, -1, 1)
     return torch.from_numpy(image_arrays)
 
@@ -102,6 +108,31 @@ def remove_small_classes(image_dir):
       count +=1
 
   return count
+
+def calc_pixel_stats():
+  """
+  Calculates the mean and SD per pixel per channel for the train dataset
+  """
+  dataset = CelebADataset()
+  data_loader = DataLoader(dataset, batch_size=cfg.train_classes, 
+                            num_workers=cfg.num_workers, drop_last=False,
+                            pin_memory=True)
+
+  sum_tensor = torch.zeros(cfg.in_chnl, cfg.img_dim, cfg.img_dim)
+  n_imgs = 0
+  for batch in data_loader:
+    batch = batch.view(-1, batch.size(2), batch.size(3),batch.size(4)) # flatten into array of images
+    n_imgs += batch.size(0)
+    sum_tensor += batch.sum(0)
+  mean_tensor = sum_tensor.div(n_imgs)
+
+  sum_tensor = torch.zeros(cfg.in_chnl, cfg.img_dim, cfg.img_dim)
+  for batch in data_loader:
+    batch = batch.view(-1, batch.size(2), batch.size(3),batch.size(4)) # flatten into array of images
+    sum_tensor += ((batch-mean_tensor)**2).sum(0)
+  sd_tensor = (sum_tensor.div(n_imgs-1))**0.5
+
+  return mean_tensor, sd_tensor
 
 if __name__ == '__main__':
  image_dir = cfg.dataset_dir

@@ -1,17 +1,18 @@
 import os
 import pickle
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
 # locals
 from config import config as cfg
-from dataset import CelebADataset
+from dataset import CelebADataset, calc_pixel_stats
 from networks import ConvEmbedder, GE2ELoss
 import utils
 
-def train():
+def train(mean = None, sd = None):
   device = torch.device(cfg.device)
   n_samples = cfg.train_samples
   batch_size = cfg.train_classes
@@ -23,7 +24,7 @@ def train():
     ge2e_net = nn.DataParallel(ge2e_net)
     batch_size *= cfg.n_gpu # compensates batch size geting distributed over gpus
 
-  dataset = CelebADataset()
+  dataset = CelebADataset(training=True, mean=mean, sd=sd)
   data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, 
                             num_workers=cfg.num_workers, drop_last=True,
                             pin_memory=True)
@@ -88,4 +89,9 @@ def train():
   torch.save(ge2e_net.state_dict(), cfg.model_dir + 'ge2e_epoch_{}.pt'.format(epoch))
 
 if __name__ == "__main__":
-  train()
+  mean, sd = calc_pixel_stats()
+  mean, sd = mean.numpy(), sd.numpy()
+  mean = np.moveaxis(mean, 0, -1) # flip shape to channels-last so compatible with CV2
+  sd = np.moveaxis(sd, 0, -1)
+  print("Mean and SD calculated. Beginning training.")
+  train(mean, sd)
