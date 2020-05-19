@@ -8,8 +8,9 @@ from torch.utils.data import DataLoader
 
 # locals
 from config import config as cfg
-from dataset import CelebADataset, calc_pixel_stats
+from dataset import CelebADataset
 from networks import ConvEmbedder, GE2ELoss, CombinedModel
+from statistics import calc_pixel_stats
 import utils
 
 def train(mean = None, sd = None):
