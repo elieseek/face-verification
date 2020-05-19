@@ -19,12 +19,12 @@ class Config:
     self.train_classes = 64
     self.test_classes = 64
 
-    self.resume_training = True
+    self.resume_training = False
     self.resume_model_path = 'C:\cs_projects\\face-verification\model\model.pt'
     self.resume_ge2e_path = 'C:\cs_projects\\face-verification\model\ge2e.pt'
     self.num_workers = 4
-    self.learning_rate = 0.01
-    self.n_epochs = 100
+    self.learning_rate = 0.001
+    self.n_epochs = 300
     self.logging_rate = 0
     self.early_stopping = 5 # stop training if model doesn't improve, -1 for no early_stopping
     self.checkpoint_rate = 0

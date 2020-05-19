@@ -92,8 +92,12 @@ if __name__ == '__main__':
   import time
   import numpy as np
   from torch.utils.data import DataLoader
+  mean, sd = dataset.calc_pixel_stats()
+  mean, sd = mean.numpy(), sd.numpy()
+  mean = np.moveaxis(mean, 0, -1) # flip shape to channels-last so compatible with CV2
+  sd = np.moveaxis(sd, 0, -1)
   device = torch.device(cfg.device)
-  data = dataset.CelebADataset()
+  data = dataset.CelebADataset(False, mean, sd)
   loader = DataLoader(data, batch_size=cfg.train_classes, shuffle=True)
   net = ConvEmbedder().to(device, non_blocking=True)
   ge2e = GE2ELoss(device)
@@ -105,12 +109,12 @@ if __name__ == '__main__':
     print(image_batch.shape)
     test = np.moveaxis(image_batch.numpy()[0].astype(float).astype(np.uint8), 1,-1)
     print(test.shape)
-    cv2.imshow('name',test[0])
+    cv2.imshow('name',(test[0]))
     cv2.waitKey(0)
     start = time.time()
     print(image_batch.shape)
     image_batch = image_batch.float().to(device, non_blocking=True)
-    image_batch = torch.reshape(image_batch, (cfg.train_samples*cfg.train_classes, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
+    image_batch = torch.reshape(image_batch, (-1, image_batch.size(2), image_batch.size(3), image_batch.size(4)))
     print(image_batch.shape)
     print("n_params: {}".format(sum([p.numel() for p in net.parameters() if p.requires_grad])))
     embeds = net(image_batch)

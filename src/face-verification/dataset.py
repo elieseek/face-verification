@@ -96,7 +96,7 @@ def read_eval_file(eval_file):
 
 def remove_small_classes(image_dir):
   """
-  Removes classes that have less than 10 samples (n=1458 for train)
+  Removes classes that have less than 10 samples (n=1458 for train, 176 test, 174 val)
   Required for GE2E batch training with maximum 10 samples per class
   """
   classes = os.listdir(image_dir)
@@ -105,7 +105,7 @@ def remove_small_classes(image_dir):
     path_to_folder = path.join(image_dir, folder)
     if len(os.listdir(path_to_folder)) < cfg.train_samples:
       rmtree(path_to_folder)
-      count +=1
+      count += 1
 
   return count
 
@@ -135,8 +135,8 @@ def calc_pixel_stats():
   return mean_tensor, sd_tensor
 
 if __name__ == '__main__':
- image_dir = cfg.dataset_dir
- label_file = cfg.label_dir
- eval_file = cfg.partition_dir
+  image_dir = cfg.dataset_dir
+  label_file = cfg.label_dir
+  eval_file = cfg.partition_dir
 
- if not os.path.exists(cfg.train_dir): restucture_celeba(image_dir, label_file, eval_file, True)
+  if not os.path.exists(cfg.train_dir): restucture_celeba(image_dir, label_file, eval_file, True)
