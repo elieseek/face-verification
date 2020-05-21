@@ -20,3 +20,8 @@ A face recognition model trained to create unique embeddings using generalised e
 3. Edit config.py to point to an existing model and checkpoint folder
 4. Once sure that your folders and config are set up correctly, run dataset.py to restructure the folders
 5. Run train.py :)
+
+# Requirements
+- numpy
+- opencv-python
+- torch
