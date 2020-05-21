@@ -11,7 +11,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
-# Configs
+# locals
 from config import config as cfg
 import utils
 
