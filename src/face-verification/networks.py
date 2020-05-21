@@ -18,22 +18,22 @@ class ConvEmbedder(nn.Module):
     self.conv_net = nn.Sequential(
       # Input: batch * in_chnl * 64 * 64
       nn.Conv2d(in_chnl, out_chnl, kernel_size=5, padding=2, bias=bias),
-      nn.LeakyReLU(),
+      nn.ReLU(),
       # State size: out_chnl * 64 * 64
       nn.Conv2d(out_chnl, out_chnl*2, kernel_size=5, padding=2, bias=bias),
       nn.MaxPool2d(2, stride=2),
-      nn.LeakyReLU(),
+      nn.ReLU(),
       # State size: (out_chnl*2) * 32 * 32
-      # nn.Conv2d(out_chnl*2, out_chnl*4, kernel_size=3, padding=1, bias=bias),
-      # nn.LeakyReLU(),
+      nn.Conv2d(out_chnl*2, out_chnl*4, kernel_size=3, padding=1, bias=bias),
+      nn.ReLU(),
       # State size: (out_chnl*4) * 32 * 32
-      nn.Conv2d(out_chnl*2, out_chnl*4, kernel_size=3, padding=1,bias=bias),
+      nn.Conv2d(out_chnl*4, out_chnl*8, kernel_size=3, padding=1,bias=bias),
       nn.MaxPool2d(2, stride=2),
-      nn.LeakyReLU(),
+      nn.ReLU(),
       # State size: (out_chnl*8) * 16 * 16
-      # nn.Conv2d(out_chnl*8, out_chnl*16, kernel_size=3, padding=1, bias=bias),
-      # nn.MaxPool2d(2, stride=2),
-      # nn.LeakyReLU(),
+      nn.Conv2d(out_chnl*8, out_chnl*16, kernel_size=3, padding=1, bias=bias),
+      nn.MaxPool2d(2, stride=2),
+      nn.ReLU(),
       # State size: (out_chnl*16) * 8 * 8
     )
 

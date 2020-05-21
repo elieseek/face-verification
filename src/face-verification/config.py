@@ -36,7 +36,7 @@ class Config:
     self.out_chnl = 8
     self.bias = True
     self.hidden_size = 128
-    self.embedding_dimension = 64
+    self.embedding_dimension = 128
 
     self.device = 'cuda'
     self.n_gpu = 1
