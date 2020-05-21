@@ -7,11 +7,12 @@ A face recognition model trained to create unique embeddings using generalised e
 - [GE2E loss](https://arxiv.org/abs/1710.10467) for embeddings
 - Training loop
 - Z normalizing input
+- Trained network
+- Flask API
 
 ## To-do
+- [ ] Fix package
 - [ ] Calculate EER
-- [ ] Train networks + create new
-- [ ] Dockerise trained model
 - [ ] Deploy demo
 
 # Training the model
@@ -19,7 +20,7 @@ A face recognition model trained to create unique embeddings using generalised e
 2. Edit config.py to point to the images folder and text files
 3. Edit config.py to point to an existing model and checkpoint folder
 4. Once sure that your folders and config are set up correctly, run dataset.py to restructure the folders
-5. Run train.py :)
+5. Run train_net.py :)
 
 # Requirements
 - numpy
