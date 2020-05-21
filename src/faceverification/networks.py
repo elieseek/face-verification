@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
-import dataset
 
 # local
-from config import config as cfg
-import utils
+from . import dataset
+from .config import config as cfg
+from . import utils
 
 class ConvEmbedder(nn.Module):
   def __init__(self):

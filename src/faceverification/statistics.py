@@ -4,9 +4,9 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 
 # locals
-from dataset import CelebADataset
-from evaluate import calc_embedding
-from config import config as cfg
+from .dataset import CelebADataset
+from .evaluate import calc_embedding
+from .config import config as cfg
 
 def calc_pixel_stats():
   """

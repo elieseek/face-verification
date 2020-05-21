@@ -12,8 +12,8 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 # locals
-from config import config as cfg
-import utils
+from .config import config as cfg
+from . import utils
 
 class CelebADataset(Dataset):
   """

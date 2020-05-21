@@ -6,8 +6,8 @@ from os import path
 import pickle
 
 # locals
-from utils import transform_fn
-from config import config as cfg
+from .utils import transform_fn
+from .config import config as cfg
 
 def calc_embedding(model, image,
                     mean=np.zeros((cfg.img_dim, cfg.img_dim, cfg.in_chnl)), 

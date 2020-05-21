@@ -4,7 +4,7 @@ import torch
 from torch.functional import F
 
 # locals
-from config import config as cfg
+from .config import config as cfg
 
 def transform_fn(image, 
                   mean=np.zeros((cfg.img_dim, cfg.img_dim, cfg.in_chnl)), 

@@ -7,11 +7,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 
 # locals
-from config import config as cfg
-from dataset import CelebADataset
-from networks import ConvEmbedder, GE2ELoss, CombinedModel
-from statistics import calc_pixel_stats
-import utils
+from .config import config as cfg
+from .dataset import CelebADataset
+from .networks import ConvEmbedder, GE2ELoss, CombinedModel
+from .statistics import calc_pixel_stats
+from . import utils
 
 def train(mean = None, sd = None):
   device = torch.device(cfg.device)
@@ -99,11 +99,3 @@ def train(mean = None, sd = None):
   print("Avg train loss: {:.04f}, Avg test loss: {:.04f}".format(train_loss/batch_size, test_loss/batch_size))
   torch.save(embedder_net.state_dict(), cfg.model_dir + 'embedder_epoch_{}.pt'.format(epoch))
   torch.save(ge2e_net.state_dict(), cfg.model_dir + 'ge2e_epoch_{}.pt'.format(epoch))
-
-if __name__ == "__main__":
-  mean, sd = calc_pixel_stats()
-  mean, sd = mean.numpy(), sd.numpy()
-  mean = np.moveaxis(mean, 0, -1) # flip shape to channels-last so compatible with CV2
-  sd = np.moveaxis(sd, 0, -1)
-  print("Mean and SD calculated. Beginning training.")
-  train(mean, sd)
