@@ -1,3 +1,4 @@
+import os
 import pickle
 import cv2
 import numpy as np
@@ -31,4 +32,4 @@ if __name__ == '__main__':
   model.load_state_dict(torch.load('embedder.pt', map_location=torch.device('cpu')))
   with open('mean.pkl', 'rb') as f: mean = pickle.load(f)
   with open('sd.pkl', 'rb') as f: sd = pickle.load(f)
-  serve(app, host='0.0.0.0')
+  serve(app, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
