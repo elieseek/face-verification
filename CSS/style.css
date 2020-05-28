@@ -1,0 +1,39 @@
+body {
+  margin: 0;
+  font-family: Tahoma, Geneva, sans-serif;
+  color: #222222;
+}
+.header {
+  height: 5vh;
+  background: #1c5d99;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+}
+.header h1 {
+  margin: 0;
+  color: #FFFFFF;
+}
+
+.demo {
+  margin: 10vw;
+  height: 80vh;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.demo .instructions {
+  background: #1C5D99;
+}
+
+.demo .input1 {
+  background: #639FAB;
+}
+
+.demo .input2 {
+  background: #639FAB;
+}
+
+.demo .result {
+  background: #BBCDE5;
+}

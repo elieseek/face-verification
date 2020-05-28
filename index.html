@@ -3,9 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel='stylesheet' href='./CSS/style.css'/>
   <title>Face Verification</title>
 </head>
 <body>
-  <h1>test</h1>
+  <div class="header">
+    <h1>Face Verification Demo</h1>
+  </div>
+  <div class="content">
+    <div class="demo">
+      <div class="instructions">
+        instructions
+      </div>
+      <div class="input1">
+        <input type="file" accept=".jpg, .png" class="upload" id="image_1">
+      </div>
+      <div class="input2">
+        <input type="file" accept=".jpg, .png" class="upload" id="image_2">
+      </div>
+      <div class="result">
+        <button id="submit_button">send images</button>
+        <div id="results">Similarity: </div>
+      </div>
+    </div>
+    <div class="info">
+
+    </div>
+  </div>
+  <div class="footer">
+
+  </div>
+  <script src="frontend.js"/>
 </body>
 </html>
