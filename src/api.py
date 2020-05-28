@@ -28,7 +28,7 @@ def embed():
 if __name__ == '__main__':
   from waitress import serve
   model = networks.ConvEmbedder()
-  model.load_state_dict(torch.load('embedder_epoch_93.pt', map_location=torch.device('cpu')))
+  model.load_state_dict(torch.load('embedder.pt', map_location=torch.device('cpu')))
   with open('mean.pkl', 'rb') as f: mean = pickle.load(f)
   with open('sd.pkl', 'rb') as f: sd = pickle.load(f)
   serve(app, host='0.0.0.0')
