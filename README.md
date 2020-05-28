@@ -26,3 +26,6 @@ A face recognition model trained to create unique embeddings using generalised e
 - numpy
 - opencv-python
 - torch
+
+# Additional files
+The mean, sd and embedder model used in the demo are available [here](https://drive.google.com/drive/folders/1yNUbrMzeSsWlNb7gkPo-bQLcm_sCikv7?usp=sharing)
